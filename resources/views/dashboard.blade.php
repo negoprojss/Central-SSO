@@ -115,117 +115,64 @@
             {{-- AQUÍ POSTERIORMENTE SALDRÁN DESDE MYSQL --}}
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 
+                @forelse ($applications as $application)
 
-                {{-- PROYECTO 1 --}}
-                <a
-                    href="#"
-                    class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-indigo-500/40 hover:bg-white/[0.05]"
-                >
+                        <a
+                            href="{{ $application->url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-indigo-500/40 hover:bg-white/[0.05]"
+                        >
 
-                    <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between">
 
-                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 font-bold">
-                            V
+                                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 font-bold">
+                                    {{ $application->icon ?? strtoupper(substr($application->name, 0, 1)) }}
+                                </div>
+
+                                <span class="text-xl text-slate-600 transition group-hover:text-indigo-400">
+                                    →
+                                </span>
+
+                            </div>
+
+                            <h3 class="mt-6 text-xl font-bold">
+                                {{ $application->name }}
+                            </h3>
+
+                            <p class="mt-2 text-sm leading-6 text-slate-400">
+                                {{ $application->description }}
+                            </p>
+
+                            <div class="mt-5 flex items-center gap-2 text-xs text-emerald-400">
+
+                                <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+
+                                Disponible
+
+                            </div>
+
+                        </a>
+
+                        @empty
+
+                    <div class="col-span-full rounded-2xl border border-dashed border-white/10 p-10 text-center">
+
+                        <div class="text-4xl">
+                            📦
                         </div>
 
-                        <span class="text-xl text-slate-600 transition group-hover:text-indigo-400">
-                            →
-                        </span>
+                        <h3 class="mt-4 text-lg font-semibold">
+                            No hay aplicaciones disponibles
+                        </h3>
+
+                        <p class="mt-2 text-sm text-slate-500">
+                            Actualmente no tienes aplicaciones disponibles.
+                        </p>
 
                     </div>
 
-                    <h3 class="mt-6 text-xl font-bold">
-                        Ventas
-                    </h3>
-
-                    <p class="mt-2 text-sm leading-6 text-slate-400">
-                        Sistema de gestión comercial.
-                    </p>
-
-                    <div class="mt-5 flex items-center gap-2 text-xs text-emerald-400">
-
-                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-
-                        Disponible
-
-                    </div>
-
-                </a>
-
-
-                {{-- PROYECTO 2 --}}
-                <a
-                    href="#"
-                    class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-purple-500/40 hover:bg-white/[0.05]"
-                >
-
-                    <div class="flex items-center justify-between">
-
-                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-600 font-bold">
-                            I
-                        </div>
-
-                        <span class="text-xl text-slate-600 transition group-hover:text-purple-400">
-                            →
-                        </span>
-
-                    </div>
-
-                    <h3 class="mt-6 text-xl font-bold">
-                        Inventario
-                    </h3>
-
-                    <p class="mt-2 text-sm leading-6 text-slate-400">
-                        Administración de inventario.
-                    </p>
-
-                    <div class="mt-5 flex items-center gap-2 text-xs text-emerald-400">
-
-                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-
-                        Disponible
-
-                    </div>
-
-                </a>
-
-
-                {{-- PROYECTO 3 --}}
-                <a
-                    href="#"
-                    class="group rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-cyan-500/40 hover:bg-white/[0.05]"
-                >
-
-                    <div class="flex items-center justify-between">
-
-                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-600 font-bold">
-                            R
-                        </div>
-
-                        <span class="text-xl text-slate-600 transition group-hover:text-cyan-400">
-                            →
-                        </span>
-
-                    </div>
-
-                    <h3 class="mt-6 text-xl font-bold">
-                        Reportes
-                    </h3>
-
-                    <p class="mt-2 text-sm leading-6 text-slate-400">
-                        Centro de reportes.
-                    </p>
-
-                    <div class="mt-5 flex items-center gap-2 text-xs text-emerald-400">
-
-                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-
-                        Disponible
-
-                    </div>
-
-                </a>
-
+                @endforelse
 
             </div>
 
