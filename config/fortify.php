@@ -2,6 +2,7 @@
 
 use Laravel\Fortify\Features;
 
+
 return [
 
     /*
@@ -164,17 +165,21 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        // Features::emailVerification(),
-        Features::updateProfileInformation(),
         Features::updatePasswords(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
+        Features::emailVerification()
+        // Features::registration(),
+        // Features::resetPasswords(),
+        // Features::emailVerification(),
+        // Features::updateProfileInformation(),
+        // Features::updatePasswords(),
+        // Features::twoFactorAuthentication([
+        //     'confirm' => true,
+        //     'confirmPassword' => true,
             // 'window' => 0,
-        ]),
-        Features::passkeys([
-            'confirmPassword' => true,
-        ]),
+        // ]),
+        // Features::passkeys([
+        //     'confirmPassword' => true,
+        //]),
     ],
 
 ];
