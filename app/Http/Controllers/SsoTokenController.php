@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SsoAccessToken;
 use App\Models\SsoAuthorizationCode;
 use App\Models\SsoClient;
 use Illuminate\Http\JsonResponse;
@@ -24,12 +25,19 @@ class SsoTokenController extends Controller
             'redirect_uri' => ['required', 'url'],
         ]);
 
+        /*
+         * Comprobar grant type.
+         */
         if ($request->grant_type !== 'authorization_code') {
             return response()->json([
                 'error' => 'unsupported_grant_type',
+                'message' => 'El grant_type no es válido.',
             ], 400);
         }
 
+        /*
+         * Buscar cliente.
+         */
         $client = SsoClient::query()
             ->where('client_id', $request->client_id)
             ->where('active', true)
@@ -38,27 +46,35 @@ class SsoTokenController extends Controller
         if (!$client) {
             return response()->json([
                 'error' => 'invalid_client',
+                'message' => 'Cliente SSO no válido.',
             ], 401);
         }
 
+        /*
+         * Comprobar client_secret.
+         */
         if (!Hash::check(
             $request->client_secret,
             $client->client_secret
         )) {
             return response()->json([
                 'error' => 'invalid_client',
+                'message' => 'Client secret incorrecto.',
             ], 401);
         }
 
+        /*
+         * Comprobar redirect URI.
+         */
         if ($client->redirect_uri !== $request->redirect_uri) {
             return response()->json([
                 'error' => 'invalid_redirect_uri',
+                'message' => 'Redirect URI incorrecta.',
             ], 400);
         }
 
         /*
-         * Buscamos códigos no utilizados y no expirados
-         * pertenecientes al cliente.
+         * Buscar authorization codes válidos.
          */
         $codes = SsoAuthorizationCode::query()
             ->where('client_id', $client->id)
@@ -80,29 +96,48 @@ class SsoTokenController extends Controller
             }
         }
 
+        /*
+         * Code inválido.
+         */
         if (!$authorizationCode) {
             return response()->json([
                 'error' => 'invalid_grant',
+                'message' => 'Authorization code inválido o expirado.',
             ], 400);
         }
 
         /*
-         * Marcar código como utilizado.
+         * Verificar nuevamente redirect URI.
+         */
+        if ($authorizationCode->redirect_uri !== $request->redirect_uri) {
+
+            return response()->json([
+                'error' => 'invalid_grant',
+                'message' => 'Redirect URI no coincide.',
+            ], 400);
+        }
+
+        /*
+         * Marcar authorization code como utilizado.
          */
         $authorizationCode->update([
             'used_at' => now(),
         ]);
 
         /*
-         * Crear token temporal.
+         * Crear access token.
          */
         $accessToken = Str::random(80);
 
+        SsoAccessToken::create([
+            'token_hash' => Hash::make($accessToken),
+            'client_id' => $client->id,
+            'user_id' => $authorizationCode->user_id,
+            'expires_at' => now()->addHour(),
+        ]);
+
         /*
-         * Por ahora devolvemos el token.
-         *
-         * En el siguiente paso lo almacenaremos en una
-         * tabla específica de tokens.
+         * Respuesta OAuth-style.
          */
         return response()->json([
             'access_token' => $accessToken,
