@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SsoAuthorizationCode;
 use App\Models\SsoClient;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class SsoAuthorizationController extends Controller
@@ -35,6 +37,10 @@ class SsoAuthorizationController extends Controller
 
         $state = $request->state ?: Str::random(40);
 
+        /*
+         * Si el usuario todavía no está autenticado,
+         * guardamos la solicitud y lo enviamos al login.
+         */
         if (!auth()->check()) {
 
             session([
@@ -48,29 +54,28 @@ class SsoAuthorizationController extends Controller
             return redirect()->route('login');
         }
 
-        return $this->approve(
+        return $this->createAuthorizationCode(
             $client,
             $state
         );
     }
 
     /**
-     * Aprobar autorización.
+     * Crear código temporal de autorización.
      */
-    private function approve(
+    private function createAuthorizationCode(
         SsoClient $client,
         string $state
     ): RedirectResponse {
 
-        $code = Str::random(64);
+        $code = Str::random(80);
 
-        session([
-            'sso.authorization_code' => [
-                'code' => $code,
-                'client_id' => $client->client_id,
-                'user_id' => auth()->id(),
-                'expires_at' => now()->addMinutes(2),
-            ],
+        SsoAuthorizationCode::create([
+            'code_hash' => Hash::make($code),
+            'client_id' => $client->id,
+            'user_id' => auth()->id(),
+            'redirect_uri' => $client->redirect_uri,
+            'expires_at' => now()->addMinutes(2),
         ]);
 
         return redirect()->away(
