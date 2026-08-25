@@ -23,6 +23,15 @@ Route::get('/sso/authorize', [
 ])
     ->name('sso.authorize');
 
+Route::get('/sso/continue', function (
+    SsoAuthorizationController $controller
+) {
+    return $controller->continueAfterLogin()
+        ?? redirect()->route('dashboard');
+})
+    ->middleware('auth')
+    ->name('sso.continue');
+
 Route::post('/sso/token', [
     SsoTokenController::class,
     'token',
